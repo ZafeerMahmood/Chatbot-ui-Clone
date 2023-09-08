@@ -4,9 +4,11 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { appWithTranslation } from 'next-i18next';
 import type { AppProps } from 'next/app';
 import { Inter } from 'next/font/google';
+
 import { TreeDataProvider } from '@/components/TreeFolder/treeContext';
 
 import '@/styles/globals.css';
+import { UserProvider } from '@auth0/nextjs-auth0/client';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -16,15 +18,15 @@ function App({ Component, pageProps }: AppProps<{}>) {
   return (
     <div className={inter.className}>
       <Toaster />
-      <QueryClientProvider client={queryClient}>
-      <TreeDataProvider>
-        <Component {...pageProps} />
-        </TreeDataProvider>
-      </QueryClientProvider>
+      <UserProvider>
+        <QueryClientProvider client={queryClient}>
+          <TreeDataProvider>
+            <Component {...pageProps} />
+          </TreeDataProvider>
+        </QueryClientProvider>
+      </UserProvider>
     </div>
   );
 }
 
 export default appWithTranslation(App);
-
-  

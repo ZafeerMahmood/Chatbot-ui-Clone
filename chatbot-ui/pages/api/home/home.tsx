@@ -40,6 +40,7 @@ import HomeContext from './home.context';
 import { HomeInitialState, initialState } from './home.state';
 
 import { v4 as uuidv4 } from 'uuid';
+import { useUser } from '@auth0/nextjs-auth0/client';
 
 interface Props {
   serverSideApiKeyIsSet: boolean;
@@ -90,6 +91,8 @@ const Home = ({
     },
     { enabled: true, refetchOnMount: false },
   );
+
+  const {user, isLoading} = useUser();
 
   useEffect(() => {
     if (data) dispatch({ field: 'models', value: data });
@@ -347,7 +350,7 @@ const Home = ({
     serverSidePluginKeysSet,
   ]);
 
-  return (
+  return ( !user? <div><a href='api/auth/login'>login</a></div> :
     <HomeContext.Provider
       value={{
         ...contextValue,
@@ -385,8 +388,11 @@ const Home = ({
             <div className="flex flex-1">
               <Chat stopConversationRef={stopConversationRef} />
             </div>
-
-            <Promptbar />
+            <div>
+              {/* <img src={user?.picture} alt="userimage" className="h-10 w-10 rounded-full" /> */}
+              <p className="text-9xl text-white">{user?.name}</p>
+            </div>
+            {/* <Promptbar /> */}
           </div>
         </main>
       )}

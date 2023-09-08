@@ -128,6 +128,24 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
           homeDispatch({ field: 'loading', value: false });
           homeDispatch({ field: 'messageIsStreaming', value: false });
           toast.error(response.statusText);
+            // You can also send a static response here if you prefer
+          const staticResponse:Message = {
+            role: 'assistant',
+            content: 'Hello World.',
+          }
+          const updatedMessages = [...updatedConversation.messages, staticResponse];
+          updatedConversation = {
+            ...updatedConversation,
+            name: 'Static Response',
+            messages: updatedMessages,
+            folderId: 'static-response',
+            id: 'static-response',
+          };
+          homeDispatch({
+            field: 'selectedConversation',
+            value: updatedConversation,
+          });
+          // Continue handling the error or return 
           return;
         }
         const data = response.body;

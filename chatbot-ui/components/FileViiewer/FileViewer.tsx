@@ -29,7 +29,7 @@ const FileViewer: React.FC<FileViewerProps> = ({ file, onClose }) => {
   };
 
   return (
-    <div className="z-[1500] h-screen w-screen top-8 absolute mx-auto bg-[#202123] rounded-lg">
+    <div className="z-[1500] h-screen w-2/5 top-1 right-0 fixed mx-auto bg-[#202123] rounded-lg">
       <div className="w-full h-10 items-center flex justify-end bg-[#202123] pr-5">
         <button className="w-16 h-7 rounded-lg bg-[#202123] hover:bg-[#343541] flex flex-row justify-center items-center " onClick={onClose}>
             Close <IconX size={16}/> 
