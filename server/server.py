@@ -1,9 +1,6 @@
 import os
 from flask import Flask, request, jsonify, send_from_directory,send_file,make_response
-import uuid
 from flask_cors import CORS
-import base64
-
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 
