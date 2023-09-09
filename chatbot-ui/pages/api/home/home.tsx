@@ -39,8 +39,8 @@ import Promptbar from '@/components/Promptbar';
 import HomeContext from './home.context';
 import { HomeInitialState, initialState } from './home.state';
 
-import { v4 as uuidv4 } from 'uuid';
 import { useUser } from '@auth0/nextjs-auth0/client';
+import { v4 as uuidv4 } from 'uuid';
 
 interface Props {
   serverSideApiKeyIsSet: boolean;
@@ -92,7 +92,7 @@ const Home = ({
     { enabled: true, refetchOnMount: false },
   );
 
-  const {user, isLoading} = useUser();
+  const { user, isLoading } = useUser();
 
   useEffect(() => {
     if (data) dispatch({ field: 'models', value: data });
@@ -350,7 +350,11 @@ const Home = ({
     serverSidePluginKeysSet,
   ]);
 
-  return ( !user? <div><a href='api/auth/login'>login</a></div> :
+  return !user ? (
+    <div>
+      <a href="api/auth/login">login</a>
+    </div>
+  ) : (
     <HomeContext.Provider
       value={{
         ...contextValue,
@@ -389,8 +393,12 @@ const Home = ({
               <Chat stopConversationRef={stopConversationRef} />
             </div>
             <div>
-              {/* <img src={user?.picture} alt="userimage" className="h-10 w-10 rounded-full" /> */}
-              <p className="text-9xl text-white">{user?.name}</p>
+              <img
+                src={user?.picture??''}
+                alt="userimage"
+                className="h-10 w-10 rounded-full"
+              />
+              <p className="text-1xl text-white">{user?.name}</p>
             </div>
             {/* <Promptbar /> */}
           </div>
