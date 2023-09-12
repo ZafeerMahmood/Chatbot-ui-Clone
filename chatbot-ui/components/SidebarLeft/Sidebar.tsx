@@ -6,6 +6,7 @@ import {
   IconPlus,
   IconUpload,
 } from '@tabler/icons-react';
+import { IconArrowBarLeft, IconArrowBarRight } from '@tabler/icons-react';
 import React, {
   ReactNode,
   useCallback,
@@ -14,6 +15,7 @@ import React, {
   useState,
 } from 'react';
 import { useTranslation } from 'react-i18next';
+
 import { SERVER_LINK } from '@/utils/app/const';
 
 import {
@@ -52,7 +54,7 @@ interface Props<T> {
   handleCreateItem: () => void;
   handleCreateFolder: () => void;
   handleDrop: (e: any) => void;
-  treeData: TreeNodeData[] 
+  treeData: TreeNodeData[];
 }
 
 const Sidebar = <T,>({
@@ -160,9 +162,9 @@ const Sidebar = <T,>({
 
   // Set the isFile flag for each node in treeData
   return isOpen ? (
-    <div className="">
+    <div className="flex flex-row">
       <div
-        className={`fixed top-0 left-0 h-full grow-0 shrink-0 min-w-[260px] max-w-[600px] flex border-r-2 flex-none border-white/20 flex-col space-y-2 bg-[#202123] p-2 text-[14px] transition-all sm:relative sm:top-0 cursor-col-resize z-40`}
+        className={`fixed top-0 left-0 h-full grow-0 shrink-0 min-w-[260px] max-w-[600px] flex border-r-2 flex-none border-white/20 flex-col space-y-2 bg-[#202123] p-2 text-[14px]  sm:relative sm:top-0 cursor-col-resize z-40`}
         style={{ width: sidebarWidth }}
         onMouseDown={(e: any) => {
           const distanceFromEdge = 255;
@@ -202,6 +204,11 @@ const Sidebar = <T,>({
               onChange={handleFileChange}
             />
             <IconUpload size={16} />
+          </button>
+          <button className="ml-2 flex flex-shrink-0 cursor-pointer items-center gap-3 rounded-md border border-white/20 p-3 text-sm text-white transition-colors duration-200 hover:bg-gray-500/10"
+            onClick={toggleOpen}
+          >
+            <IconArrowBarLeft size={16} />
           </button>
         </div>
 
@@ -244,8 +251,7 @@ const Sidebar = <T,>({
         </div>
         {footerComponent}
       </div>
-
-      <CloseSidebarButton onClick={toggleOpen} side={side} />
+      {/* <CloseSidebarButton onClick={toggleOpen} side={side} /> */}
     </div>
   ) : (
     <OpenSidebarButton onClick={toggleOpen} side={side} />

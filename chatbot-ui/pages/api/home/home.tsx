@@ -33,6 +33,8 @@ import { Prompt } from '@/types/prompt';
 
 import { Chat } from '@/components/Chat/Chat';
 import { Chatbar } from '@/components/Chatbar/Chatbar';
+import LoginButton from '@/components/LoginLogout/login';
+import LoginOutButton from '@/components/LoginLogout/logout';
 import { Navbar } from '@/components/Mobile/Navbar';
 import Promptbar from '@/components/Promptbar';
 
@@ -349,10 +351,10 @@ const Home = ({
     serverSideApiKeyIsSet,
     serverSidePluginKeysSet,
   ]);
-
+  // TODO: add a proper component eg login component to route to auth0 login page
   return !user ? (
-    <div>
-      <a href="api/auth/login">login</a>
+    <div className="flex justify-center items-center w-screen h-screen">
+      <LoginButton />
     </div>
   ) : (
     <HomeContext.Provider
@@ -392,14 +394,21 @@ const Home = ({
             <div className="flex flex-1">
               <Chat stopConversationRef={stopConversationRef} />
             </div>
-            <div>
-              <img
-                src={user?.picture??''}
-                alt="userimage"
-                className="h-10 w-10 rounded-full"
-              />
-              <p className="text-1xl text-white">{user?.name}</p>
+            {/* TODO: add user profile Styles here if needed */}
+            <div className="flex flex-col justify-between">
+              <div className='flex flex-col items-center'>
+                <img
+                  src={user?.picture ?? ''}
+                  alt="userimage"
+                  className="h-10 w-10 rounded-full justify-end"
+                />
+                <p className="text-sm font-thin text-white">{user?.name}</p>
+              </div>
+              <div className='mb-9 w-full rounded-lg flex justify-center items-center'>
+                <LoginOutButton />
+              </div>
             </div>
+
             {/* <Promptbar /> */}
           </div>
         </main>
