@@ -1,5 +1,37 @@
 # Chatbot UI
 
+# Changes
+
+a new api to get okta access token to use has auth header for to send to server
+
+`pages/api/External/Token`
+use this to in future to get access tokens before any request to the server
+also to access this api a user first must be logged in
+```ts
+import { getAccessToken, withApiAuthRequired } from '@auth0/nextjs-auth0';
+import { NextApiRequest } from 'next';
+import { NextResponse } from 'next/server';
+
+ const GET=withApiAuthRequired(async function handler(req: NextApiRequest, res: any) {
+  try {
+    const { accessToken } = await getAccessToken(req, res, {
+      scopes: ['read:folder','write:folder','update:folder'] //Creat your own apis access's
+    });
+      return res.status(200).send({accessToken:accessToken});
+  } catch (error: any) {
+    console.error('Error fetching access Token:', error);
+    return  NextResponse.json({ error: error.message }, { status: error.status || 500 });
+  }
+});
+
+export default GET;
+```
+use `utils/app/fetchToken.ts`
+to access the api to get access token
+
+# Api's
+[create an API](https://auth0.com/docs/authorization/apis) using the [management dashboard](https://manage.auth0.com/#/apis). This will give you an API Identifier that you can use in the `AUTH0_AUDIENCE` environment variable below. Then you will need to [add a permission](https://auth0.com/docs/get-started/dashboard/add-api-permissions) named `read:folder update:folder write:folder` to your API. To get your app to ask for that permission, include it in the value of the `AUTH0_SCOPE` environment variable.
+
 ## News
 
 Chatbot UI 2.0 is out as an updated, hosted product!
@@ -70,6 +102,16 @@ Create a .env.local file in the root of the repo with your OpenAI API Key:
 
 ```bash
 OPENAI_API_KEY=YOUR_KEY
+#OKTA
+AUTH0_SECRET=
+AUTH0_BASE_URL=
+AUTH0_ISSUER_BASE_URL=
+AUTH0_CLIENT_ID=
+AUTH0_CLIENT_SECRET=
+AUTH0_AUDIENCE=
+AUTH0_SCOPE='openid profile read:folder write:folder update:folder'
+NEXT_PUBLIC_SERVER_LINk=http://localhost:5000
+
 ```
 
 > You can set `OPENAI_API_HOST` where access to the official OpenAI host is restricted or unavailable, allowing users to configure an alternative host for their specific needs.

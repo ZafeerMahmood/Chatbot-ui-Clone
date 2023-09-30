@@ -1,6 +1,4 @@
 import {
-  IconFile,
-  IconFolder,
   IconFolderPlus,
   IconMistOff,
   IconPlus,
@@ -15,9 +13,9 @@ import React, {
   useState,
 } from 'react';
 import { useTranslation } from 'react-i18next';
-
+import fetchToken from '@/utils/app/fetchToken';
 import { SERVER_LINK } from '@/utils/app/const';
-
+import { useUser } from '@auth0/nextjs-auth0/client';
 import {
   CloseSidebarButton,
   OpenSidebarButton,
@@ -25,6 +23,7 @@ import {
 
 import Search from '../Search';
 import TreeNode from '../TreeFolder';
+
 
 interface SidebarRefType extends HTMLDivElement {}
 
@@ -92,10 +91,15 @@ const Sidebar = <T,>({
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [isResizing, setIsResizing] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(260);
+  const { user } = useUser();
 
-  const handleFolderUpload = (formData: FormData) => {
-    //TODO add api to upload files
-    fetch(`${SERVER_LINK}/upload`, {
+  const handleFolderUpload = async (formData: FormData) => {
+    const accessToken = await fetchToken();
+    const userId = user?.name;
+    fetch(`${SERVER_LINK}/upload/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
       method: 'POST',
       body: formData,
     })
@@ -117,7 +121,6 @@ const Sidebar = <T,>({
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    //TODO select all files then send to server over an api
     const files = event.target.files;
     if (!files || files.length === 0) {
       return;
@@ -251,7 +254,6 @@ const Sidebar = <T,>({
         </div>
         {footerComponent}
       </div>
-      {/* <CloseSidebarButton onClick={toggleOpen} side={side} /> */}
     </div>
   ) : (
     <OpenSidebarButton onClick={toggleOpen} side={side} />

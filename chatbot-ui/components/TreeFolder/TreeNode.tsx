@@ -1,9 +1,12 @@
-
-
 import { IconFile, IconFolder } from '@tabler/icons-react';
-import React, { useState, MouseEvent } from 'react';
-import FileViewer from '../FileViiewer';
+import React, { MouseEvent, useState } from 'react';
+
 import { SERVER_LINK } from '@/utils/app/const';
+import fetchToken from '@/utils/app/fetchToken';
+
+import FileViewer from '../FileViiewer';
+
+import { useUser } from '@auth0/nextjs-auth0/client';
 
 interface TreeProps {
   treeData: TreeNodeData[] | TreeNodeData;
@@ -44,22 +47,38 @@ const CustomContextMenu: React.FC<{
       className="flex flex-col gap-1 rounded-lg border-white/20 border-solid border-[2px] text-white bg-[#202123] fixed z-[1000] "
       onClick={handleContextMenuClick}
     >
-      <div onClick={onOpenClick} className='p-2 cursor-pointer hover:bg-[#343541] hover:border-[1px] rounded-md'>
+      <div
+        onClick={onOpenClick}
+        className="p-2 cursor-pointer hover:bg-[#343541] hover:border-[1px] rounded-md"
+      >
         Open
       </div>
-      <div onClick={onDownloadClick} className='p-2 cursor-pointer hover:bg-[#343541] hover:border-[1px] rounded-md' >
+      <div
+        onClick={onDownloadClick}
+        className="p-2 cursor-pointer hover:bg-[#343541] hover:border-[1px] rounded-md"
+      >
         Download
       </div>
-      <div onClick={onCloseContextMenu} className='p-2 cursor-pointer hover:bg-[#343541] hover:border-[1px] rounded-md '>
+      <div
+        onClick={onCloseContextMenu}
+        className="p-2 cursor-pointer hover:bg-[#343541] hover:border-[1px] rounded-md "
+      >
         Close
       </div>
     </div>
   );
 };
-const TreeNode: React.FC<TreeNodeProps> = ({ node, onOpenClick, onDownloadClick }) => {
+const TreeNode: React.FC<TreeNodeProps> = ({
+  node,
+  onOpenClick,
+  onDownloadClick,
+}) => {
   const { children, label, isFile } = node;
   const [showChildren, setShowChildren] = useState(false);
-  const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
+  const [contextMenuPosition, setContextMenuPosition] = useState({
+    x: 0,
+    y: 0,
+  });
   const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
 
   const handleRightClick = (e: MouseEvent) => {
@@ -132,8 +151,11 @@ const TreeNode: React.FC<TreeNodeProps> = ({ node, onOpenClick, onDownloadClick 
 
 const Tree: React.FC<TreeProps> = ({ treeData }) => {
   const dataArray = Array.isArray(treeData) ? treeData : [treeData];
-  const [selectedFileContent, setSelectedFileContent] = useState<string | null>(null);
+  const [selectedFileContent, setSelectedFileContent] = useState<string | null>(
+    null,
+  );
   const [isFileViewerOpen, setIsFileViewerOpen] = useState<boolean>(false);
+  const { user } = useUser();
 
   const setFileFlags = (node: TreeNodeData) => {
     if (!node.children) {
@@ -149,21 +171,6 @@ const Tree: React.FC<TreeProps> = ({ treeData }) => {
     setFileFlags(node);
   });
 
-  const handleDownloadClick = (userId: string, label: string) => {
-    if (label) {
-      fetch(`${SERVER_LINK}/download/${userId}/${label}`)
-        .then((response) => {
-          if (response.ok) {
-            window.open(response.url, '_blank');
-          } else {
-            console.error('Download failed');
-          }
-        })
-        .catch((error) => {
-          console.error('Fetch error', error);
-        });
-    }
-  };
 
   const handleOpenClick = (url: string) => {
     setSelectedFileContent(url);
@@ -181,32 +188,65 @@ const Tree: React.FC<TreeProps> = ({ treeData }) => {
         {dataArray.map((node, index) => (
           <TreeNode
             node={node}
-            onOpenClick={(label) => {
+            onOpenClick={async (label) => {
               console.log(`Open clicked for file: ${label}`);
-              const userId = "1234";
-              // Fetch the file content and call handleOpenClick when it's available
-              fetch(`${SERVER_LINK}/open/${userId}/${label}`)
+              const userId = user?.name;
+              const accessToken = await fetchToken();
+              if (accessToken && userId && label) {
+                fetch(`${SERVER_LINK}/open/${userId}/${label}`, {
+                  headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                  },
+                  method: 'GET',
+                })
+                  .then((response) => {
+                    console.log(response.headers);
+                    if (response.ok) {
+                      return response.blob(); 
+                    } else {
+                      console.error('Open failed');
+                      return null;
+                    }
+                  })
+                  .then((fileContent) => {
+                    if (fileContent !== null) {
+                      const url = URL.createObjectURL(fileContent); 
+                      handleOpenClick(url);
+                    }
+                  })
+                  .catch((error) => {
+                    console.error('Fetch error', error);
+                  });
+              }
+            }}
+            onDownloadClick={async (label) => {
+              const userId = user?.name;
+              const accessToken = await fetchToken();
+              if (accessToken && userId && label) {
+                fetch(`${SERVER_LINK}/download/${userId}/${label}`, {
+                  headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                  },
+                  method: 'GET',
+                })
                 .then((response) => {
                   if (response.ok) {
-                    return response.blob(); // Assuming the server sends the file content as a blob
+                    return response.blob();
                   } else {
-                    console.error('Open failed');
+                    console.error('Download failed');
                     return null;
                   }
                 })
                 .then((fileContent) => {
                   if (fileContent !== null) {
-                    const url = URL.createObjectURL(fileContent); // Create a URL for the blob
-                    handleOpenClick(url);
+                    const url = URL.createObjectURL(fileContent);            
+                    window.open(url, '_blank');
                   }
                 })
                 .catch((error) => {
                   console.error('Fetch error', error);
                 });
-            }}
-            onDownloadClick={(label) => {
-              const userId = "1234";
-              handleDownloadClick(userId, label || '');
+              }
             }}
             key={index}
           />

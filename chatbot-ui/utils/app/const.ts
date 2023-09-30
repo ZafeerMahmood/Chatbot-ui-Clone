@@ -20,5 +20,4 @@ export const OPENAI_ORGANIZATION =
 export const AZURE_DEPLOYMENT_ID =
   process.env.AZURE_DEPLOYMENT_ID || '';
 
-export const SERVER_LINK =
-  process.env.SERVER_LINK || 'http://127.0.0.1:5000';
+export const SERVER_LINK =process.env.NEXT_PUBLIC_SERVER_LINk || 'http://localhost:3000';
